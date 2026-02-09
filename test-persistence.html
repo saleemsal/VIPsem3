@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GT Study Buddy - Persistence Test</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #003057;
+        }
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #B3A369;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #8B7E55;
+        }
+        button.danger {
+            background: #dc2626;
+        }
+        button.danger:hover {
+            background: #991b1b;
+        }
+        pre {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin: 20px 0;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .conversation {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f9fafb;
+            border-left: 4px solid #B3A369;
+            border-radius: 4px;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            border-left: 3px solid #e5e7eb;
+        }
+        .message.user {
+            border-left-color: #3b82f6;
+        }
+        .message.assistant {
+            border-left-color: #10b981;
+        }
+        .citation {
+            display: inline-block;
+            margin: 2px;
+            padding: 2px 6px;
+            background: #dbeafe;
+            border-radius: 3px;
+            font-size: 12px;
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎓 GT Study Buddy - Persistence & Citation Test</h1>
+    
+    <div class="section">
+        <h2>Quick Actions</h2>
+        <div class="controls">
+            <button onclick="checkStorage()">🔍 Check Storage</button>
+            <button onclick="validateCitations()">📑 Validate Citations</button>
+            <button onclick="exportData()">💾 Export Data</button>
+            <button onclick="clearStorage()" class="danger">🗑️ Clear All Data</button>
+        </div>
+    </div>
+
+    <div id="status"></div>
+    <div id="output"></div>
+
+    <script>
+        const CONVERSATIONS_KEY = 'gt-study-buddy-conversations';
+        const ACTIVE_CONVERSATION_KEY = 'gt-study-buddy-active-conversation';
+
+        function showStatus(message, type = 'success') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+            setTimeout(() => statusDiv.innerHTML = '', 5000);
+        }
+
+        function checkStorage() {
+            const output = document.getElementById('output');
+            output.innerHTML = '<div class="section"><h2>Storage Analysis</h2>';
+            
+            try {
+                const convs = localStorage.getItem(CONVERSATIONS_KEY);
+                const active = localStorage.getItem(ACTIVE_CONVERSATION_KEY);
+                
+                if (!convs) {
+                    output.innerHTML += '<div class="status warning">⚠️ No conversations found in localStorage. Start a chat in the app first!</div></div>';
+                    return;
+                }
+                
+                const parsed = JSON.parse(convs);
+                
+                // Summary stats
+                let html = `
+                    <div class="status success">
+                        ✅ Found ${parsed.length} conversation(s) in storage
+                    </div>
+                    <p><strong>Active Conversation ID:</strong> ${active || 'None'}</p>
+                    <hr style="margin: 20px 0;">
+                `;
+                
+                // Detailed conversation breakdown
+                parsed.forEach((conv, idx) => {
+                    const isActive = conv.id === active;
+                    const userMessages = conv.messages.filter(m => m.role === 'user').length;
+                    const assistantMessages = conv.messages.filter(m => m.role === 'assistant').length;
+                    const messagesWithCitations = conv.messages.filter(m => m.citations && m.citations.length > 0).length;
+                    
+                    html += `
+                        <div class="conversation">
+                            <h3>${isActive ? '⭐ ' : ''}Conversation ${idx + 1}: ${conv.title}</h3>
+                            <p><strong>ID:</strong> <code>${conv.id}</code></p>
+                            <p><strong>Mode:</strong> ${conv.mode}</p>
+                            <p><strong>Created:</strong> ${new Date(conv.created_at).toLocaleString()}</p>
+                            <p><strong>Updated:</strong> ${new Date(conv.updated_at).toLocaleString()}</p>
+                            <p><strong>Total Messages:</strong> ${conv.messages.length} (${userMessages} user, ${assistantMessages} assistant)</p>
+                            <p><strong>Messages with Citations:</strong> ${messagesWithCitations}</p>
+                            
+                            <details>
+                                <summary style="cursor: pointer; margin: 10px 0;"><strong>View Messages (${conv.messages.length})</strong></summary>
+                                <div style="margin-top: 10px;">
+                    `;
+                    
+                    conv.messages.forEach((msg, msgIdx) => {
+                        const contentPreview = msg.content.length > 200 
+                            ? msg.content.substring(0, 200) + '...' 
+                            : msg.content;
+                        const citationCount = msg.citations ? msg.citations.length : 0;
+                        
+                        html += `
+                            <div class="message ${msg.role}">
+                                <p><strong>${msg.role === 'user' ? '👤 User' : '🤖 Assistant'}</strong> 
+                                   <small>(${msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : 'no timestamp'})</small>
+                                   ${msg.status ? `<span style="background: #e0e7ff; padding: 2px 6px; border-radius: 3px; font-size: 11px;">${msg.status}</span>` : ''}
+                                </p>
+                                <p style="margin: 8px 0; color: #4b5563;">${contentPreview}</p>
+                                ${citationCount > 0 ? `
+                                    <div style="margin-top: 8px;">
+                                        <strong>Citations (${citationCount}):</strong><br>
+                                        ${msg.citations.map(c => `
+                                            <span class="citation" title="${c.snippet || 'No snippet'}">
+                                                📄 ${c.source} (p. ${c.page}) - ${c.score}%
+                                            </span>
+                                        `).join('')}
+                                    </div>
+                                ` : '<small style="color: #9ca3af;">No citations</small>'}
+                            </div>
+                        `;
+                    });
+                    
+                    html += `
+                                </div>
+                            </details>
+                        </div>
+                    `;
+                });
+                
+                output.innerHTML += html + '</div>';
+                showStatus('✅ Storage check complete!', 'success');
+                
+            } catch (e) {
+                output.innerHTML += `<div class="status error">❌ Error: ${e.message}</div></div>`;
+                showStatus('❌ Error parsing storage data', 'error');
+            }
+        }
+
+        function validateCitations() {
+            const output = document.getElementById('output');
+            output.innerHTML = '<div class="section"><h2>Citation Validation</h2>';
+            
+            try {
+                const convs = localStorage.getItem(CONVERSATIONS_KEY);
+                if (!convs) {
+                    output.innerHTML += '<div class="status warning">⚠️ No conversations to validate</div></div>';
+                    return;
+                }
+                
+                const parsed = JSON.parse(convs);
+                let totalCitations = 0;
+                let validCitations = 0;
+                let issues = [];
+                
+                parsed.forEach(conv => {
+                    conv.messages.forEach((msg, msgIdx) => {
+                        if (msg.citations && msg.citations.length > 0) {
+                            msg.citations.forEach((citation, citIdx) => {
+                                totalCitations++;
+                                
+                                // Validate citation structure
+                                const hasSource = citation.source && typeof citation.source === 'string';
+                                const hasPage = typeof citation.page === 'number';
+                                const hasScore = typeof citation.score === 'number';
+                                
+                                if (hasSource && hasPage && hasScore) {
+                                    validCitations++;
+                                } else {
+                                    issues.push({
+                                        conversation: conv.title,
+                                        messageIndex: msgIdx,
+                                        citationIndex: citIdx,
+                                        missing: [
+                                            !hasSource && 'source',
+                                            !hasPage && 'page',
+                                            !hasScore && 'score'
+                                        ].filter(Boolean)
+                                    });
+                                }
+                            });
+                        }
+                    });
+                });
+                
+                let html = `
+                    <div class="status ${issues.length === 0 ? 'success' : 'warning'}">
+                        ${issues.length === 0 ? '✅' : '⚠️'} Found ${totalCitations} total citations, ${validCitations} valid
+                    </div>
+                `;
+                
+                if (issues.length > 0) {
+                    html += '<h3>Issues Found:</h3><pre>' + JSON.stringify(issues, null, 2) + '</pre>';
+                } else {
+                    html += '<p>All citations have required fields: source, page, and score!</p>';
+                }
+                
+                output.innerHTML += html + '</div>';
+                showStatus(issues.length === 0 ? '✅ All citations valid!' : '⚠️ Some citations have issues', 
+                          issues.length === 0 ? 'success' : 'warning');
+                
+            } catch (e) {
+                output.innerHTML += `<div class="status error">❌ Error: ${e.message}</div></div>`;
+                showStatus('❌ Validation error', 'error');
+            }
+        }
+
+        function exportData() {
+            try {
+                const convs = localStorage.getItem(CONVERSATIONS_KEY);
+                const active = localStorage.getItem(ACTIVE_CONVERSATION_KEY);
+                
+                const exportData = {
+                    conversations: convs ? JSON.parse(convs) : [],
+                    activeConversationId: active,
+                    exportDate: new Date().toISOString()
+                };
+                
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `gt-study-buddy-backup-${Date.now()}.json`;
+                link.click();
+                
+                URL.revokeObjectURL(url);
+                showStatus('✅ Data exported successfully!', 'success');
+            } catch (e) {
+                showStatus('❌ Export failed: ' + e.message, 'error');
+            }
+        }
+
+        function clearStorage() {
+            if (confirm('⚠️ This will delete ALL conversations and chat history. Are you sure?')) {
+                localStorage.removeItem(CONVERSATIONS_KEY);
+                localStorage.removeItem(ACTIVE_CONVERSATION_KEY);
+                document.getElementById('output').innerHTML = '';
+                showStatus('🗑️ All data cleared! Refresh the app to see demo conversations.', 'success');
+            }
+        }
+
+        // Auto-check on load
+        window.addEventListener('load', () => {
+            checkStorage();
+        });
+
+        // Auto-refresh every 5 seconds if the page is visible
+        setInterval(() => {
+            if (document.visibilityState === 'visible') {
+                checkStorage();
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
+

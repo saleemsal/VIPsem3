@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Conversations</title>
+</head>
+<body>
+    <h1>Conversation Storage Test</h1>
+    <button onclick="checkStorage()">Check LocalStorage</button>
+    <button onclick="clearStorage()">Clear Storage</button>
+    <pre id="output"></pre>
+    <script>
+        function checkStorage() {
+            const conversations = localStorage.getItem('gt-study-buddy-conversations');
+            const active = localStorage.getItem('gt-study-buddy-active-conversation');
+            const output = document.getElementById('output');
+            output.textContent = 'Conversations:\n' + (conversations || 'None') + '\n\nActive ID:\n' + (active || 'None');
+            
+            if (conversations) {
+                const parsed = JSON.parse(conversations);
+                console.log('Parsed conversations:', parsed);
+                console.log('Message counts:', parsed.map(c => ({ id: c.id, title: c.title, msgCount: c.messages.length })));
+            }
+        }
+        function clearStorage() {
+            localStorage.removeItem('gt-study-buddy-conversations');
+            localStorage.removeItem('gt-study-buddy-active-conversation');
+            alert('Cleared!');
+        }
+        checkStorage();
+    </script>
+</body>
+</html>

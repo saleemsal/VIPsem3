@@ -1,0 +1,4 @@
+google-generativeai==0.3.2
+mcp==1.0.0
+httpx>=0.27
+python-dotenv==1.0.0

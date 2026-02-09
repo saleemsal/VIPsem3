@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check Storage</title>
+</head>
+<body>
+    <h1>GT Study Buddy - Storage Check</h1>
+    <button onclick="checkStorage()">Check Storage</button>
+    <button onclick="clearStorage()">Clear Storage</button>
+    <pre id="output"></pre>
+
+    <script>
+        function checkStorage() {
+            const convs = localStorage.getItem('gt-study-buddy-conversations');
+            const active = localStorage.getItem('gt-study-buddy-active-conversation');
+            
+            const output = document.getElementById('output');
+            output.textContent = '=== STORAGE CHECK ===\n';
+            output.textContent += `Active ID: ${active}\n\n`;
+            
+            if (convs) {
+                try {
+                    const parsed = JSON.parse(convs);
+                    output.textContent += `Total conversations: ${parsed.length}\n\n`;
+                    parsed.forEach(c => {
+                        output.textContent += `- ${c.id}: "${c.title}" (${c.messages.length} messages)\n`;
+                        if (c.messages.length > 0) {
+                            output.textContent += `  First message: "${c.messages[0].content.substring(0, 50)}..."\n`;
+                        }
+                    });
+                } catch (e) {
+                    output.textContent += `Error parsing: ${e.message}\n`;
+                }
+            } else {
+                output.textContent += 'No conversations in storage\n';
+            }
+        }
+
+        function clearStorage() {
+            localStorage.removeItem('gt-study-buddy-conversations');
+            localStorage.removeItem('gt-study-buddy-active-conversation');
+            alert('Storage cleared! Refresh the app.');
+        }
+
+        // Auto-check on load
+        checkStorage();
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,246 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* GT Study Buddy Design System - Navy & Gold Academic Theme */
+
+@layer base {
+  :root {
+    /* GT-inspired color palette */
+    --gt-navy: 220 85% 12%;
+    --gt-navy-light: 220 70% 20%;
+    --gt-gold: 45 100% 50%;
+    --gt-gold-light: 45 100% 65%;
+    --gt-gold-dark: 42 85% 45%;
+    
+    /* Academic neutrals */
+    --academic-slate: 220 25% 25%;
+    --academic-slate-light: 220 15% 40%;
+    --paper-white: 0 0% 98%;
+    --ink-dark: 220 90% 8%;
+    
+    /* System colors - dark mode first */
+    --background: 220 90% 4%;
+    --foreground: 220 15% 95%;
+
+    --card: 220 80% 6%;
+    --card-foreground: 220 15% 90%;
+
+    --popover: 220 80% 5%;
+    --popover-foreground: 220 15% 95%;
+
+    --primary: 220 85% 12%;
+    --primary-foreground: 220 15% 95%;
+
+    --secondary: 220 60% 15%;
+    --secondary-foreground: 220 15% 85%;
+
+    --muted: 220 60% 12%;
+    --muted-foreground: 220 15% 65%;
+
+    --accent: 220 70% 20%;
+    --accent-foreground: 220 15% 90%;
+
+    --destructive: 0 85% 55%;
+    --destructive-foreground: 220 15% 95%;
+
+    --border: 220 60% 18%;
+    --input: 220 60% 15%;
+    --ring: 45 100% 50%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar theme */
+    --sidebar-background: 220 90% 3%;
+    --sidebar-foreground: 220 15% 85%;
+    --sidebar-primary: 45 100% 50%;
+    --sidebar-primary-foreground: 220 90% 8%;
+    --sidebar-accent: 220 60% 10%;
+    --sidebar-accent-foreground: 220 15% 80%;
+    --sidebar-border: 220 60% 15%;
+    --sidebar-ring: 45 100% 50%;
+
+    /* Custom gradients */
+    --gradient-gt: linear-gradient(135deg, hsl(var(--gt-navy)), hsl(var(--gt-navy-light)));
+    --gradient-gold: linear-gradient(135deg, hsl(var(--gt-gold-dark)), hsl(var(--gt-gold)));
+    --gradient-academic: linear-gradient(180deg, hsl(var(--background)), hsl(var(--card)));
+    
+    /* Shadows */
+    --shadow-academic: 0 4px 20px -2px hsl(var(--gt-navy) / 0.3);
+    --shadow-gold: 0 4px 15px -3px hsl(var(--gt-gold) / 0.2);
+    
+    /* Animations */
+    --transition-academic: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    /* Dark mode colors are already defined in :root */
+  }
+
+  .light {
+    --background: 0 0% 98%;
+    --foreground: 220 90% 8%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 85% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 85% 12%;
+
+    --primary: 220 85% 12%;
+    --primary-foreground: 220 15% 95%;
+
+    --secondary: 220 15% 92%;
+    --secondary-foreground: 220 85% 15%;
+
+    --muted: 220 15% 94%;
+    --muted-foreground: 220 25% 45%;
+
+    --accent: 220 15% 90%;
+    --accent-foreground: 220 85% 15%;
+
+    --destructive: 0 85% 55%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 220 25% 85%;
+    --input: 220 25% 85%;
+    --ring: 220 85% 12%;
+
+    --sidebar-background: 0 0% 97%;
+    --sidebar-foreground: 220 60% 20%;
+    --sidebar-primary: 220 85% 12%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 220 15% 90%;
+    --sidebar-accent-foreground: 220 60% 15%;
+    --sidebar-border: 220 25% 80%;
+    --sidebar-ring: 220 85% 12%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+
+  html {
+    @apply dark;
+  }
+}
+
+@layer components {
+  /* Academic component styles */
+  .academic-card {
+    @apply bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-6 shadow-academic;
+  }
+  
+  .gt-gradient {
+    @apply bg-gradient-gt text-primary-foreground;
+  }
+  
+  .gold-accent {
+    @apply text-gt-gold border-gt-gold/30;
+  }
+  
+  .citation-chip {
+    @apply inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-academic cursor-pointer;
+  }
+  
+  .nav-active {
+    @apply bg-primary text-primary-foreground font-medium;
+  }
+  
+  .chat-message {
+    @apply p-4 rounded-lg border border-border/50 bg-card/30 backdrop-blur-sm;
+  }
+  
+  .assistant-message {
+    @apply bg-card/80 backdrop-blur-sm border border-border/60 text-foreground;
+  }
+  
+  .user-message {
+    @apply bg-gt-gold text-ink-dark border-gt-gold/30;
+  }
+  
+  .bg-gt-gold {
+    background-color: hsl(var(--gt-gold));
+  }
+  
+  .text-ink-dark {
+    color: hsl(var(--ink-dark));
+  }
+  
+  .text-gt-gold {
+    color: hsl(var(--gt-gold));
+  }
+  
+  .border-gt-gold {
+    border-color: hsl(var(--gt-gold));
+  }
+  
+  /* Enhanced animations */
+  .animate-scale-in {
+    animation: scale-in 0.3s ease-out;
+  }
+  
+  .animate-fade-in {
+    animation: fade-in 0.4s ease-out;
+  }
+  
+  @keyframes scale-in {
+    0% {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Force scrollbar visibility */
+  .chat-messages-container {
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(156, 163, 175, 0.4) transparent !important;
+  }
+
+  .chat-messages-container::-webkit-scrollbar {
+    width: 12px !important;
+    background: transparent !important;
+  }
+
+  .chat-messages-container::-webkit-scrollbar-track {
+    background: rgba(156, 163, 175, 0.1) !important;
+    border-radius: 6px !important;
+  }
+
+  .chat-messages-container::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.4) !important;
+    border-radius: 6px !important;
+    border: 2px solid transparent !important;
+    background-clip: content-box !important;
+  }
+
+  .chat-messages-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.6) !important;
+  }
+
+  /* Ensure scrollbar is always visible */
+  .chat-messages-container::-webkit-scrollbar-thumb {
+    min-height: 30px !important;
+  }
+}

@@ -1,0 +1,4 @@
+project_id = "ejfbwdsojuhvvooeztvx"
+
+[functions.deepseekapi]
+verify_jwt = false
